@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Туры - Турагентство</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-suitcase"></i> Туры</h1>
+        <a th:href="@{/}" class="btn btn-outline-secondary">
+            <i class="fas fa-home"></i> На главную
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/tours}" method="get" class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" name="search" th:value="${search}"
+                           class="form-control" placeholder="Поиск по названию тура">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+            <div class="mt-3">
+                <a th:href="@{/tours/create}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Добавить тур
+                </a>
+                <a th:href="@{/tours}" class="btn btn-outline-secondary">
+                    <i class="fas fa-sync"></i> Сбросить фильтр
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Название тура</th>
+                        <th>Маршрут</th>
+                        <th>Дата начала</th>
+                        <th>Дата окончания</th>
+                        <th>Участники</th>
+                        <th>Цена</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tour : ${tours}">
+                        <td th:text="${tour.tourId}"></td>
+                        <td th:text="${tour.tourName}"></td>
+                        <td th:text="${tour.route.routeName}"></td>
+                        <td th:text="${#temporals.format(tour.startDate, 'dd.MM.yyyy')}"></td>
+                        <td th:text="${#temporals.format(tour.endDate, 'dd.MM.yyyy')}"></td>
+                        <td th:text="${tour.numVacationers}"></td>
+                        <td th:text="${tour.tourPrice}"></td>
+                        <td>
+                            <span th:switch="${tour.status}">
+                                <span th:case="'PLANNED'" class="badge bg-info">Запланирован</span>
+                                <span th:case="'ACTIVE'" class="badge bg-success">Активен</span>
+                                <span th:case="'COMPLETED'" class="badge bg-secondary">Завершен</span>
+                                <span th:case="'CANCELLED'" class="badge bg-danger">Отменен</span>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a th:href="@{/tours/edit/{id}(id=${tour.tourId})}"
+                                   class="btn btn-warning btn-sm" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/tours/delete/{id}(id=${tour.tourId})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Вы уверены, что хотите удалить тур?')"
+                                   title="Удалить">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${tours.empty}">
+                        <td colspan="9" class="text-center text-muted">
+                            <i class="fas fa-info-circle"></i> Туры не найдены
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
