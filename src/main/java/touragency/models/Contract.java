@@ -2,6 +2,8 @@ package touragency.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -26,6 +28,7 @@ public class Contract {
     private Tour tour;
 
     @Column(name = "sign_date", nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate signDate;
 
     @DecimalMin(value = "0.0", message = "Общая сумма не может быть отрицательной")

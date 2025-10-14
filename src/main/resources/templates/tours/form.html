@@ -33,9 +33,6 @@
                         <label for="tourName" class="form-label">Название тура</label>
                         <input type="text" class="form-control" id="tourName"
                                th:field="*{tourName}" required>
-                        <div th:if="${#fields.hasErrors('tourName')}" class="text-danger">
-                            <small th:errors="*{tourName}"></small>
-                        </div>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -48,9 +45,6 @@
                                     th:selected="${tour.route != null && tour.route.routeId == routeItem.routeId}">
                             </option>
                         </select>
-                        <div th:if="${#fields.hasErrors('route')}" class="text-danger">
-                            <small th:errors="*{route}"></small>
-                        </div>
                     </div>
                 </div>
 
@@ -59,18 +53,12 @@
                         <label for="startDate" class="form-label">Дата начала</label>
                         <input type="date" class="form-control" id="startDate"
                                th:field="*{startDate}" required>
-                        <div th:if="${#fields.hasErrors('startDate')}" class="text-danger">
-                            <small th:errors="*{startDate}"></small>
-                        </div>
                     </div>
 
                     <div class="col-md-3 mb-3">
                         <label for="endDate" class="form-label">Дата окончания</label>
                         <input type="date" class="form-control" id="endDate"
                                th:field="*{endDate}" required>
-                        <div th:if="${#fields.hasErrors('endDate')}" class="text-danger">
-                            <small th:errors="*{endDate}"></small>
-                        </div>
                     </div>
 
                     <div class="col-md-3 mb-3">
@@ -98,9 +86,6 @@
                                          statusItem == 'CANCELLED' ? 'Отменен' : statusItem}">
                         </option>
                     </select>
-                    <div th:if="${#fields.hasErrors('status')}" class="text-danger">
-                        <small th:errors="*{status}"></small>
-                    </div>
                 </div>
 
                 <div class="mb-3">

@@ -1,4 +1,3 @@
-// TourismAgencyApplication.java
 package touragency;
 
 import org.springframework.boot.SpringApplication;

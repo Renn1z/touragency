@@ -2,6 +2,8 @@ package touragency.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -23,10 +25,12 @@ public class Tour {
 
     @Future(message = "Дата начала должна быть в будущем")
     @Column(name = "start_date", nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @Future(message = "Дата окончания должна быть в будущем")
     @Column(name = "end_date", nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     @Min(value = 1, message = "Количество участников должно быть не менее 1")
