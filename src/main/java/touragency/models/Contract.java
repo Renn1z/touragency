@@ -6,6 +6,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "contracts")
@@ -19,13 +21,23 @@ public class Contract {
     @Column(name = "contract_number", unique = true, nullable = false)
     private String contractNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "contract_customers",
+            joinColumns = @JoinColumn(name = "contract_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id")
+    )
+    // @NotEmpty(message = "Должен быть выбран хотя бы один клиент")
+    private Set<Customer> customers = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tour_id", nullable = false)
-    private Tour tour;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "contract_tours",
+            joinColumns = @JoinColumn(name = "contract_id"),
+            inverseJoinColumns = @JoinColumn(name = "tour_id")
+    )
+    // @NotEmpty(message = "Должен быть выбран хотя бы один тур")
+    private Set<Tour> tours = new HashSet<>();
 
     @Column(name = "sign_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -51,6 +63,8 @@ public class Contract {
     public Contract() {
         this.signDate = LocalDate.now();
         this.paidAmount = BigDecimal.ZERO;
+        this.customers = new HashSet<>();
+        this.tours = new HashSet<>();
     }
 
     public Long getContractId() { return contractId; }
@@ -59,11 +73,11 @@ public class Contract {
     public String getContractNumber() { return contractNumber; }
     public void setContractNumber(String contractNumber) { this.contractNumber = contractNumber; }
 
-    public Customer getCustomer() { return customer; }
-    public void setCustomer(Customer customer) { this.customer = customer; }
+    public Set<Customer> getCustomers() { return customers; }
+    public void setCustomers(Set<Customer> customers) { this.customers = customers; }
 
-    public Tour getTour() { return tour; }
-    public void setTour(Tour tour) { this.tour = tour; }
+    public Set<Tour> getTours() { return tours; }
+    public void setTours(Set<Tour> tours) { this.tours = tours; }
 
     public LocalDate getSignDate() { return signDate; }
     public void setSignDate(LocalDate signDate) { this.signDate = signDate; }

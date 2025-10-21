@@ -33,8 +33,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Номер договора</th>
-                        <th>Клиент</th>
-                        <th>Тур</th>
+                        <th>Клиенты</th>
+                        <th>Туры</th>
                         <th>Дата подписания</th>
                         <th>Общая сумма</th>
                         <th>Оплачено</th>
@@ -48,12 +48,18 @@
                         <td th:text="${contract.contractId}"></td>
                         <td th:text="${contract.contractNumber}"></td>
                         <td>
-                            <span th:text="${contract.customer.lastName + ' ' + contract.customer.firstName}"></span>
+                            <div th:each="customer : ${contract.customers}" class="mb-1">
+                                <span th:text="${customer.lastName + ' ' + customer.firstName}"></span>
+                            </div>
                         </td>
-                        <td th:text="${contract.tour.tourName}"></td>
+                        <td>
+                            <div th:each="tour : ${contract.tours}" class="mb-1">
+                                <span th:text="${tour.tourName}"></span>
+                            </div>
+                        </td>
                         <td th:text="${#temporals.format(contract.signDate, 'dd.MM.yyyy')}"></td>
-                        <td th:text="${contract.totalAmount}"></td>
-                        <td th:text="${contract.paidAmount}"></td>
+                        <td th:text="${#numbers.formatDecimal(contract.totalAmount, 1, 2)}"></td>
+                        <td th:text="${#numbers.formatDecimal(contract.paidAmount, 1, 2)}"></td>
                         <td>
                             <span th:switch="${contract.contractStatus}">
                                 <span th:case="'DRAFT'" class="badge bg-secondary">Черновик</span>

@@ -23,12 +23,10 @@ public class Tour {
     @JoinColumn(name = "route_id", nullable = false)
     private Route route;
 
-    @Future(message = "Дата начала должна быть в будущем")
     @Column(name = "start_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
-    @Future(message = "Дата окончания должна быть в будущем")
     @Column(name = "end_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;

@@ -15,8 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/contracts")
@@ -44,22 +44,51 @@ public class ContractController {
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("contract", new Contract());
-        model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("tours", tourRepository.findAll());
-        model.addAttribute("discounts", discountRepository.findAll());
-        model.addAttribute("statuses", List.of("DRAFT", "SIGNED", "PAID", "CANCELLED"));
+        Contract contract = new Contract();
+        model.addAttribute("contract", contract);
+        setupFormModel(model);
         return "contracts/form";
     }
 
     @PostMapping("/create")
     public String createContract(@Valid @ModelAttribute Contract contract,
-                                 BindingResult result, Model model) {
+                                 BindingResult result, Model model,
+                                 @RequestParam(value = "selectedCustomers", required = false) List<Long> selectedCustomers,
+                                 @RequestParam(value = "selectedTours", required = false) List<Long> selectedTours) {
+
+        // Валидация выбранных клиентов
+        if (selectedCustomers == null || selectedCustomers.isEmpty()) {
+            result.rejectValue("customers", "NotEmpty.contract.customers", "Должен быть выбран хотя бы один клиент");
+        } else {
+            Set<Customer> customers = selectedCustomers.stream()
+                    .map(customerId -> customerRepository.findById(customerId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            contract.setCustomers(customers);
+        }
+
+        // Валидация выбранных туров
+        if (selectedTours == null || selectedTours.isEmpty()) {
+            result.rejectValue("tours", "NotEmpty.contract.tours", "Должен быть выбран хотя бы один тур");
+        } else {
+            Set<Tour> tours = selectedTours.stream()
+                    .map(tourId -> tourRepository.findById(tourId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            contract.setTours(tours);
+        }
+
         if (result.hasErrors()) {
-            model.addAttribute("customers", customerRepository.findAll());
-            model.addAttribute("tours", tourRepository.findAll());
-            model.addAttribute("discounts", discountRepository.findAll());
-            model.addAttribute("statuses", List.of("DRAFT", "SIGNED", "PAID", "CANCELLED"));
+            setupFormModel(model);
+
+            // Добавляем выбранные ID для повторного отображения формы
+            if (selectedCustomers != null) {
+                model.addAttribute("selectedCustomerIds", new HashSet<>(selectedCustomers));
+            }
+            if (selectedTours != null) {
+                model.addAttribute("selectedTourIds", new HashSet<>(selectedTours));
+            }
+
             return "contracts/form";
         }
 
@@ -74,22 +103,62 @@ public class ContractController {
             return "redirect:/contracts";
         }
         model.addAttribute("contract", contract.get());
-        model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("tours", tourRepository.findAll());
-        model.addAttribute("discounts", discountRepository.findAll());
-        model.addAttribute("statuses", List.of("DRAFT", "SIGNED", "PAID", "CANCELLED"));
+        setupFormModel(model);
+
+        // Добавляем выбранные ID для предзаполнения формы
+        Set<Long> selectedCustomerIds = contract.get().getCustomers().stream()
+                .map(Customer::getCustomerId)
+                .collect(Collectors.toSet());
+        model.addAttribute("selectedCustomerIds", selectedCustomerIds);
+
+        Set<Long> selectedTourIds = contract.get().getTours().stream()
+                .map(Tour::getTourId)
+                .collect(Collectors.toSet());
+        model.addAttribute("selectedTourIds", selectedTourIds);
+
         return "contracts/form";
     }
 
     @PostMapping("/edit/{id}")
     public String updateContract(@PathVariable Long id,
                                  @Valid @ModelAttribute Contract contract,
-                                 BindingResult result, Model model) {
+                                 BindingResult result, Model model,
+                                 @RequestParam(value = "selectedCustomers", required = false) List<Long> selectedCustomers,
+                                 @RequestParam(value = "selectedTours", required = false) List<Long> selectedTours) {
+
+        // Валидация выбранных клиентов
+        if (selectedCustomers == null || selectedCustomers.isEmpty()) {
+            result.rejectValue("customers", "NotEmpty.contract.customers", "Должен быть выбран хотя бы один клиент");
+        } else {
+            Set<Customer> customers = selectedCustomers.stream()
+                    .map(customerId -> customerRepository.findById(customerId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            contract.setCustomers(customers);
+        }
+
+        // Валидация выбранных туров
+        if (selectedTours == null || selectedTours.isEmpty()) {
+            result.rejectValue("tours", "NotEmpty.contract.tours", "Должен быть выбран хотя бы один тур");
+        } else {
+            Set<Tour> tours = selectedTours.stream()
+                    .map(tourId -> tourRepository.findById(tourId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            contract.setTours(tours);
+        }
+
         if (result.hasErrors()) {
-            model.addAttribute("customers", customerRepository.findAll());
-            model.addAttribute("tours", tourRepository.findAll());
-            model.addAttribute("discounts", discountRepository.findAll());
-            model.addAttribute("statuses", List.of("DRAFT", "SIGNED", "PAID", "CANCELLED"));
+            setupFormModel(model);
+
+            // Добавляем выбранные ID для повторного отображения формы
+            if (selectedCustomers != null) {
+                model.addAttribute("selectedCustomerIds", new HashSet<>(selectedCustomers));
+            }
+            if (selectedTours != null) {
+                model.addAttribute("selectedTourIds", new HashSet<>(selectedTours));
+            }
+
             return "contracts/form";
         }
 
@@ -108,5 +177,20 @@ public class ContractController {
             contractRepository.deleteById(id);
         }
         return "redirect:/contracts";
+    }
+
+    private void setupFormModel(Model model) {
+        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("tours", tourRepository.findAll());
+        model.addAttribute("discounts", discountRepository.findAll());
+        model.addAttribute("statuses", List.of("DRAFT", "SIGNED", "PAID", "CANCELLED"));
+
+        // Инициализируем атрибуты для выбранных значений, если они еще не установлены
+        if (!model.containsAttribute("selectedCustomerIds")) {
+            model.addAttribute("selectedCustomerIds", new HashSet<Long>());
+        }
+        if (!model.containsAttribute("selectedTourIds")) {
+            model.addAttribute("selectedTourIds", new HashSet<Long>());
+        }
     }
 }
